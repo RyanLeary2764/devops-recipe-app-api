@@ -9,39 +9,42 @@ on:
         options:
           - staging
           - prod
-  
+
 jobs:
-  Destroy: 
+  Destroy:
     name: Destroy
     runs-on: ubuntu-22.04
+    env:
+      AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_WORKSPACE: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Terraform Destroy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID}}
-          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-          TF_WORKSPACE: ${{github.events.inputs.environment}}
         run: |
-          echo "TF_WORKSPACE is set to $TF_WORKSPACE"
+          echo "🔍 TF_WORKSPACE is set to: $TF_WORKSPACE"
+
           cd infra
+
           docker compose run --rm \
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
             -e AWS_DEFAULT_REGION \
             -e TF_WORKSPACE \
             terraform -chdir=deploy/ init
+
           docker compose run --rm \
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
             -e AWS_DEFAULT_REGION \
             -e TF_WORKSPACE \
-            terraform -chdir=deploy/ workspace select $TF_WORKSPACE
+            terraform -chdir=deploy/ workspace select -or-create $TF_WORKSPACE
+
           docker compose run --rm \
             -e AWS_ACCESS_KEY_ID \
             -e AWS_SECRET_ACCESS_KEY \
             -e AWS_DEFAULT_REGION \
-            -e TF_WORKSPACE\
+            -e TF_WORKSPACE \
             terraform -chdir=deploy/ destroy -auto-approve
-
-
