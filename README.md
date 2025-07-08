@@ -215,7 +215,7 @@ git config --global user.name "User Name"
 git config --global push.autoSetupRemote true
 ```
 
-## Other courses
+## Other courses- test
 
 Check out our courses on [londonappdeveloper.com](https://londonappdeveloper.com).
 
